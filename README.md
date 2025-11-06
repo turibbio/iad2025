@@ -301,7 +301,7 @@ Per domande, chiarimenti o segnalazioni:
 ---
 
 **Versione**: 1.0
-**Ultimo aggiornamento**: Gennaio 2025
+**Ultimo aggiornamento**: Novembre 2025
 **Evento**: Italian Agile Day 2025
 
 ---
