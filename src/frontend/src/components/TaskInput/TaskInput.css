@@ -1,0 +1,62 @@
+.task-input-container {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.task-input-form {
+  width: 100%;
+}
+
+.task-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.task-input:focus {
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
+.task-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.task-input-error {
+  border-color: #ef4444;
+}
+
+.task-input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  padding-left: 0.25rem;
+  font-weight: 500;
+}
+
+.hint-text {
+  color: #888;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .task-input {
+    font-size: 1.25rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
