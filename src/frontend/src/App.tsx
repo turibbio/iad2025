@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { TaskInput } from './components/TaskInput';
+import { TaskList } from './components/TaskList';
 import { taskService } from './services/taskService';
 import type { ITask } from './types/task';
 import './App.css';
@@ -27,6 +28,36 @@ function App() {
     loadTasks();
   }, []);
 
+  const handleToggle = async (id: string) => {
+    try {
+      await taskService.toggleTask(id);
+      await loadTasks();
+    } catch (err: any) {
+      setError('Errore durante l\'aggiornamento del task');
+      console.error('Error toggling task:', err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await taskService.deleteTask(id);
+      await loadTasks();
+    } catch (err: any) {
+      setError('Errore durante l\'eliminazione del task');
+      console.error('Error deleting task:', err);
+    }
+  };
+
+  const handleUpdate = async (id: string, title: string) => {
+    try {
+      await taskService.updateTask(id, { title });
+      await loadTasks();
+    } catch (err: any) {
+      setError('Errore durante la modifica del task');
+      console.error('Error updating task:', err);
+    }
+  };
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -37,41 +68,26 @@ function App() {
       <main className="app-main">
         <TaskInput onTaskCreated={loadTasks} />
 
-        {isLoading && (
-          <div className="loading">Caricamento...</div>
-        )}
-
         {error && (
           <div className="error-message" role="alert">
             {error}
+            <button
+              className="error-dismiss"
+              onClick={() => setError(null)}
+              aria-label="Chiudi messaggio di errore"
+            >
+              ×
+            </button>
           </div>
         )}
 
-        {!isLoading && !error && (
-          <div className="task-list">
-            {tasks.length === 0 ? (
-              <p className="empty-message">
-                Nessun task presente. Creane uno nuovo!
-              </p>
-            ) : (
-              <ul className="tasks">
-                {tasks.map((task) => (
-                  <li key={task.id} className="task-item">
-                    <input
-                      type="checkbox"
-                      checked={task.isCompleted}
-                      readOnly
-                      className="task-checkbox"
-                    />
-                    <span className={task.isCompleted ? 'completed' : ''}>
-                      {task.title}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
+        <TaskList
+          tasks={tasks}
+          isLoading={isLoading}
+          onToggle={handleToggle}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
       </main>
 
       <footer className="app-footer">
