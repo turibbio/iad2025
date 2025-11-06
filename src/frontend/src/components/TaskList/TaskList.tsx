@@ -54,7 +54,7 @@ export function TaskList({ tasks, isLoading, onToggle, onDelete, onUpdate }: Tas
     <div className="task-list-container">
       <div className="task-list-header">
         <span className="task-count">
-          {tasks.length} {tasks.length === 1 ? 'task' : 'task'}
+          {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
         </span>
       </div>
       <ul className="task-list" role="list">
