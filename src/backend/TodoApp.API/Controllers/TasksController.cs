@@ -62,7 +62,7 @@ public class TasksController : ControllerBase
     /// <summary>
     /// Toggle dello stato di completamento di un task
     /// </summary>
-    [HttpPut("{id:guid}/toggle")]
+    [HttpPatch("{id:guid}/toggle")]
     public async Task<ActionResult<TaskDto>> Toggle(Guid id)
     {
         var task = await _taskService.ToggleTaskAsync(id);
