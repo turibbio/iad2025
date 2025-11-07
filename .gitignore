@@ -1,6 +1,3 @@
-# Claude Code Local Configuration
-.claude/
-
 # IDE
 .vscode/
 .idea/
