@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { TaskInput } from './components/TaskInput';
+import { TaskList } from './components/TaskList/TaskList';
 import { taskService } from './services/taskService';
 import type { ITask } from './types/task';
 import './App.css';
@@ -20,6 +21,26 @@ function App() {
       console.error('Error loading tasks:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggle = async (id: string) => {
+    try {
+      await taskService.toggleTask(id);
+      await loadTasks();
+    } catch (err: any) {
+      setError('Errore durante l\'aggiornamento del task');
+      console.error('Error toggling task:', err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await taskService.deleteTask(id);
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    } catch (err: any) {
+      setError('Errore durante l\'eliminazione del task');
+      console.error('Error deleting task:', err);
     }
   };
 
@@ -48,29 +69,7 @@ function App() {
         )}
 
         {!isLoading && !error && (
-          <div className="task-list">
-            {tasks.length === 0 ? (
-              <p className="empty-message">
-                Nessun task presente. Creane uno nuovo!
-              </p>
-            ) : (
-              <ul className="tasks">
-                {tasks.map((task) => (
-                  <li key={task.id} className="task-item">
-                    <input
-                      type="checkbox"
-                      checked={task.isCompleted}
-                      readOnly
-                      className="task-checkbox"
-                    />
-                    <span className={task.isCompleted ? 'completed' : ''}>
-                      {task.title}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
         )}
       </main>
 
