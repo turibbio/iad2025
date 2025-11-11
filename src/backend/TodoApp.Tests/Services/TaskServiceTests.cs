@@ -180,4 +180,57 @@ public class TaskServiceTests
     }
 
     #endregion
+
+    #region DeleteTaskAsync Tests
+
+    [Fact]
+    public async Task DeleteTaskAsync_WithExistingTask_RemovesTask()
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+        var existingTask = new TodoTask
+        {
+            Id = taskId,
+            Title = "Task to Delete",
+            IsCompleted = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _mockRepository
+            .Setup(r => r.GetByIdAsync(taskId))
+            .ReturnsAsync(existingTask);
+
+        _mockRepository
+            .Setup(r => r.DeleteAsync(taskId))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _service.DeleteTaskAsync(taskId);
+
+        // Assert
+        _mockRepository.Verify(r => r.GetByIdAsync(taskId), Times.Once);
+        _mockRepository.Verify(r => r.DeleteAsync(taskId), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteTaskAsync_WithNonExistingTask_ThrowsTaskNotFoundException()
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+
+        _mockRepository
+            .Setup(r => r.GetByIdAsync(taskId))
+            .ReturnsAsync((TodoTask?)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<TaskNotFoundException>(
+            () => _service.DeleteTaskAsync(taskId)
+        );
+
+        _mockRepository.Verify(r => r.GetByIdAsync(taskId), Times.Once);
+        _mockRepository.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+    }
+
+    #endregion
 }
