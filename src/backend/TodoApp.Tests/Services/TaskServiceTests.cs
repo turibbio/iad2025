@@ -180,4 +180,140 @@ public class TaskServiceTests
     }
 
     #endregion
+
+    #region ToggleTaskAsync Tests
+
+    [Fact]
+    public async Task ToggleTaskAsync_WithExistingTask_TogglesStatusToCompleted()
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+        var task = new TodoTask
+        {
+            Id = taskId,
+            Title = "Test Task",
+            IsCompleted = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        var updatedTask = new TodoTask
+        {
+            Id = taskId,
+            Title = "Test Task",
+            IsCompleted = true,
+            CreatedAt = task.CreatedAt,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _mockRepository
+            .Setup(r => r.GetByIdAsync(taskId))
+            .ReturnsAsync(task);
+
+        _mockRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<TodoTask>()))
+            .ReturnsAsync(updatedTask);
+
+        // Act
+        var result = await _service.ToggleTaskAsync(taskId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.IsCompleted);
+        _mockRepository.Verify(r => r.UpdateAsync(It.Is<TodoTask>(t => t.IsCompleted == true)), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleTaskAsync_WithCompletedTask_TogglesStatusToNotCompleted()
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+        var task = new TodoTask
+        {
+            Id = taskId,
+            Title = "Completed Task",
+            IsCompleted = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        var updatedTask = new TodoTask
+        {
+            Id = taskId,
+            Title = "Completed Task",
+            IsCompleted = false,
+            CreatedAt = task.CreatedAt,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _mockRepository
+            .Setup(r => r.GetByIdAsync(taskId))
+            .ReturnsAsync(task);
+
+        _mockRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<TodoTask>()))
+            .ReturnsAsync(updatedTask);
+
+        // Act
+        var result = await _service.ToggleTaskAsync(taskId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.IsCompleted);
+        _mockRepository.Verify(r => r.UpdateAsync(It.Is<TodoTask>(t => t.IsCompleted == false)), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleTaskAsync_WithNonExistingTask_ThrowsTaskNotFoundException()
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+
+        _mockRepository
+            .Setup(r => r.GetByIdAsync(taskId))
+            .ReturnsAsync((TodoTask?)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<TaskNotFoundException>(
+            () => _service.ToggleTaskAsync(taskId)
+        );
+
+        _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<TodoTask>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ToggleTaskAsync_UpdatesUpdatedAtTimestamp()
+    {
+        // Arrange
+        var taskId = Guid.NewGuid();
+        var originalTime = DateTime.UtcNow.AddHours(-1);
+        var task = new TodoTask
+        {
+            Id = taskId,
+            Title = "Test Task",
+            IsCompleted = false,
+            CreatedAt = originalTime,
+            UpdatedAt = originalTime
+        };
+
+        TodoTask? capturedTask = null;
+        _mockRepository
+            .Setup(r => r.GetByIdAsync(taskId))
+            .ReturnsAsync(task);
+
+        _mockRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<TodoTask>()))
+            .Callback<TodoTask>(t => capturedTask = t)
+            .ReturnsAsync((TodoTask t) => t);
+
+        // Act
+        await _service.ToggleTaskAsync(taskId);
+
+        // Assert
+        Assert.NotNull(capturedTask);
+        Assert.True(capturedTask.UpdatedAt > originalTime);
+        Assert.True((DateTime.UtcNow - capturedTask.UpdatedAt).TotalSeconds < 1);
+    }
+
+    #endregion
 }

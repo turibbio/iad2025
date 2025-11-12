@@ -43,7 +43,7 @@ export const taskService = {
    * Toggle dello stato di completamento di un task
    */
   async toggleTask(id: string): Promise<ITask> {
-    const response = await apiClient.put<ITask>(API_ENDPOINTS.TOGGLE(id));
+    const response = await apiClient.patch<ITask>(API_ENDPOINTS.TOGGLE(id));
     return response.data;
   },
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { TaskInput } from './components/TaskInput';
+import { TaskItem } from './components/TaskItem';
 import { taskService } from './services/taskService';
 import type { ITask } from './types/task';
 import './App.css';
@@ -20,6 +21,18 @@ function App() {
       console.error('Error loading tasks:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggleTask = async (id: string) => {
+    try {
+      const updatedTask = await taskService.toggleTask(id);
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === id ? updatedTask : task))
+      );
+    } catch (err: any) {
+      console.error('Error toggling task:', err);
+      setError('Errore durante l\'aggiornamento del task');
     }
   };
 
@@ -56,17 +69,11 @@ function App() {
             ) : (
               <ul className="tasks">
                 {tasks.map((task) => (
-                  <li key={task.id} className="task-item">
-                    <input
-                      type="checkbox"
-                      checked={task.isCompleted}
-                      readOnly
-                      className="task-checkbox"
-                    />
-                    <span className={task.isCompleted ? 'completed' : ''}>
-                      {task.title}
-                    </span>
-                  </li>
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onToggle={handleToggleTask}
+                  />
                 ))}
               </ul>
             )}
